@@ -1,0 +1,67 @@
+# falco_rules_custom.yaml
+# Honeypot-focused rules for detecting ransomware & suspicious Apache/PHP activity
+
+- rule: apache_spawn_shell
+  desc: Detect apache or nginx spawning a shell or interpreter
+  condition: spawned_process and (proc.name in (bash, sh, python, perl, php)) and proc.pname in (apache2, httpd, nginx)
+  output: Apache spawned a shell or interpreter (user=%user.name pid=%proc.pid cmdline=%proc.cmdline parent=%proc.pname)
+  priority: WARNING
+  tags: [webserver, malware]
+
+- rule: apache_network_exfil
+  desc: Detect apache/ web process opening network connections
+  condition: outbound_connection and proc.pname in (apache2, httpd, nginx) and fd.sip != 127.0.0.1
+  output: Web process opened outbound connection (dst=%fd.sip:%fd.sport user=%user.name proc=%proc.name cmdline=%proc.cmdline)
+  priority: WARNING
+  tags: [network]
+
+- rule: web_high_disk_write
+  desc: Web process writing many files quickly (possible ransomware)
+  condition: evt.type = open_write and proc.pname in (apache2, httpd, nginx) and evt.arg.flags contains O_WRONLY
+  output: Webserver high write activity (file=%fd.name user=%user.name proc=%proc.name cmdline=%proc.cmdline)
+  priority: WARNING
+  tags: [filesystem, ransomware]
+
+- rule: apache_spawn_download_tool
+  desc: Apache running wget/curl/scp/openssl (possible data exfil or staging)
+  condition: spawned_process and proc.name in (wget, curl, scp, openssl, nc, socat) and proc.pname in (apache2, httpd, nginx, php)
+  output: Apache/PHP process launched suspicious tool (user=%user.name cmdline=%proc.cmdline parent=%proc.pname)
+  priority: CRITICAL
+  tags: [webserver, exfiltration, malware]
+
+- rule: web_mass_file_rename
+  desc: Web process renaming many files (possible ransomware)
+  condition: evt.type = rename and proc.pname in (apache2, httpd, nginx, php)
+  output: Web process renaming file (old=%evt.arg.oldpath new=%evt.arg.newpath proc=%proc.name user=%user.name)
+  priority: CRITICAL
+  tags: [filesystem, ransomware]
+
+- rule: web_writes_encrypted_files
+  desc: Detect web process writing files with encrypted extensions
+  condition: evt.type in (open, open_write) and proc.pname in (apache2, httpd, nginx, php) and (fd.name endswith ".enc" or fd.name endswith ".locked" or fd.name endswith ".crypt")
+  output: Web process writing suspicious encrypted file (file=%fd.name proc=%proc.name user=%user.name)
+  priority: CRITICAL
+  tags: [ransomware, encryption]
+
+- rule: web_modifying_binaries
+  desc: Detect webserver writing to /bin or /usr/bin
+  condition: evt.type = open_write and fd.directory in (/bin, /usr/bin, /sbin, /usr/sbin) and proc.pname in (apache2, httpd, nginx, php)
+  output: Webserver modifying system binary (file=%fd.name proc=%proc.name user=%user.name)
+  priority: CRITICAL
+  tags: [persistence, rootkit, malware]
+
+- rule: Ransomware Mass File Rename
+  desc: Detect multiple file renames in a short time (possible ransomware)
+  condition: >
+    evt.type in (rename, renameat, renameat2) and
+    evt.num > 10
+  output: "Ransomware-like activity detected (renames): %evt.args"
+  priority: WARNING
+
+- rule: Ransomware Suspicious Process
+  desc: Detect processes often used in ransomware encryption
+  condition: >
+    proc.name in (openssl, gpg, ccrypt, 7z, zip) or
+    (proc.cmdline contains "enc" and proc.cmdline contains "-aes")
+  output: "Possible ransomware process: %proc.cmdline"
+  priority: ERROR

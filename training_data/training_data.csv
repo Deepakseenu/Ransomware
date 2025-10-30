@@ -1,0 +1,5 @@
+file_type,size_change,num_modifications,label
+.txt,0,1,benign
+.docx,1024,10,ransomware
+.pdf,0,1,benign
+.xlsx,2048,15,ransomware

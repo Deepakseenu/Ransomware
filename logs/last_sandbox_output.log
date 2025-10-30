@@ -1,0 +1,7 @@
+===== SANDBOX OUTPUT for /home/yashu/Music/test_ransomware_sim at 2025-10-14 20:22:08.790212 =====
+
+Unable to find image 'sandbox_analyzer:latest' locally
+docker: Error response from daemon: pull access denied for sandbox_analyzer, repository does not exist or may require 'docker login': denied: requested access to the resource is denied.
+See 'docker run --help'.
+
+===== END =====

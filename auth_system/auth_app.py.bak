@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+"""
+auth_app.py - Separate secure auth system
+Run: python3 auth_app.py
+
+Features:
+ - SQLite user store (users and one-time tokens)
+ - Registration (username, email, password)
+ - Login with brute-force protection
+ - JWT generation and email sending
+ - Token verification page
+ - Redirects to your dashboard after token verification
+"""
+
+import os
+import sqlite3
+import secrets
+import smtplib
+from email.message import EmailMessage
+from datetime import datetime, timedelta
+from functools import wraps
+import jwt
+from flask import Flask, render_template, request, redirect, url_for, flash, session, g, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
+
+# --- Configuration ---
+SECRET_KEY = os.environ.get("AUTH_SECRET_KEY") or secrets.token_hex(32)
+JWT_EXP_MINUTES = int(os.environ.get("AUTH_JWT_EXP_MINUTES", "10"))
+SMTP_HOST = os.environ.get("SMTP_HOST")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER")
+SMTP_PASS = os.environ.get("SMTP_PASS")
+FROM_EMAIL = os.environ.get("FROM_EMAIL") or SMTP_USER
+
+app = Flask(__name__, template_folder="templates")
+app.secret_key = SECRET_KEY
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+FAILED = {}
+MAX_FAIL = 5
+BLOCK_MINUTES = 15
+
+# --- DB Setup ---
+def get_db():
+    db = getattr(g, "_database", None)
+    if db is None:
+        db = sqlite3.connect(DB_PATH, check_same_thread=False)
+        db.row_factory = sqlite3.Row
+        g._database = db
+    return db
+
+def init_db():
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        token TEXT UNIQUE NOT NULL,
+        user_id INTEGER NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used INTEGER DEFAULT 0,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+    """)
+    db.commit()
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, "_database", None)
+    if db is not None:
+        db.close()
+
+# --- Security helpers ---
+def record_failed(key):
+    entry = FAILED.get(key, {"count":0, "blocked_until":None})
+    entry["count"] += 1
+    if entry["count"] >= MAX_FAIL:
+        entry["blocked_until"] = datetime.utcnow() + timedelta(minutes=BLOCK_MINUTES)
+    FAILED[key] = entry
+
+def reset_failed(key):
+    if key in FAILED:
+        del FAILED[key]
+
+def is_blocked(key):
+    e = FAILED.get(key)
+    if not e:
+        return False
+    if e.get("blocked_until") and datetime.utcnow() < e["blocked_until"]:
+        return True
+    if e.get("blocked_until") and datetime.utcnow() >= e["blocked_until"]:
+        del FAILED[key]
+        return False
+    return False
+
+def generate_jwt(sub):
+    payload = {"sub": sub, "iat": datetime.utcnow(), "exp": datetime.utcnow() + timedelta(minutes=JWT_EXP_MINUTES)}
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+def send_email(to_email, subject, body):
+    if not (SMTP_HOST and SMTP_USER and SMTP_PASS):
+        app.logger.warning("SMTP not configured - cannot send email")
+        return False, "SMTP not configured"
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = FROM_EMAIL
+    msg["To"] = to_email
+    msg.set_content(body)
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASS)
+            s.send_message(msg)
+        return True, "sent"
+    except Exception as e:
+        app.logger.exception("SMTP send failed")
+        return False, str(e)
+
+def get_client_ip():
+    if request.environ.get("HTTP_X_FORWARDED_FOR"):
+        return request.environ["HTTP_X_FORWARDED_FOR"].split(",")[0].strip()
+    return request.remote_addr or "unknown"
+
+def login_required(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        if "user" not in session or not session.get("verified"):
+            flash("Please login and verify token to access that page.", "warning")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapped
+
+# --- Routes ---
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username","").strip()
+        email = request.form.get("email","").strip().lower()
+        password = request.form.get("password","")
+        if not username or not email or not password:
+            flash("All fields required", "danger")
+            return redirect(url_for("register"))
+        db = get_db(); cur = db.cursor()
+        try:
+            cur.execute("INSERT INTO users (username,email,password_hash) VALUES (?,?,?)",
+                        (username, email, generate_password_hash(password)))
+            db.commit()
+            flash("Registered successfully. Now login.", "success")
+            return redirect(url_for("login"))
+        except Exception:
+            flash("Username or email already exists.", "danger")
+            return redirect(url_for("register"))
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        ident = request.form.get("username","").strip()
+        password = request.form.get("password","")
+        ip = get_client_ip()
+        key = f"{ip}"
+        if is_blocked(key):
+            flash("Too many failed attempts. Try later.", "danger")
+            return redirect(url_for("login"))
+        db = get_db(); cur = db.cursor()
+        cur.execute("SELECT id,username,email,password_hash FROM users WHERE username=? OR email=?", (ident, ident.lower()))
+        row = cur.fetchone()
+        if row and check_password_hash(row["password_hash"], password):
+            token = generate_jwt(row["username"])
+            expires = datetime.utcnow() + timedelta(minutes=JWT_EXP_MINUTES)
+            cur.execute("INSERT INTO tokens (token,user_id,expires_at) VALUES (?,?,?)", (token, row["id"], expires))
+            db.commit()
+            send_email(row["email"], "Your One-Time Token", f"Token (valid {JWT_EXP_MINUTES} min):\n\n{token}")
+            session["temp_user"] = row["username"]
+            flash("Token sent to email. Verify to proceed.", "info")
+            return redirect(url_for("verify"))
+        record_failed(key)
+        flash("Invalid credentials.", "danger")
+        return redirect(url_for("login"))
+    return render_template("login.html")
+
+@app.route("/verify", methods=["GET","POST"])
+def verify():
+    temp_user = session.get("temp_user")
+    if not temp_user:
+        flash("Login first to get token.", "warning")
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        token = request.form.get("token","").strip()
+        if not token:
+            flash("Token required.", "danger")
+            return redirect(url_for("verify"))
+        db = get_db(); cur = db.cursor()
+        cur.execute("SELECT id,user_id,expires_at,used FROM tokens WHERE token=? AND used=0", (token,))
+        row = cur.fetchone()
+        if not row:
+            flash("Invalid or used token.", "danger")
+            return redirect(url_for("verify"))
+        if datetime.utcnow() > datetime.fromisoformat(row["expires_at"]):
+            flash("Token expired.", "danger")
+            cur.execute("DELETE FROM tokens WHERE id=?", (row["id"],))
+            db.commit()
+            return redirect(url_for("login"))
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        if payload.get("sub") != temp_user:
+            flash("Token mismatch.", "danger")
+            return redirect(url_for("verify"))
+        cur.execute("UPDATE tokens SET used=1 WHERE id=?", (row["id"],))
+        db.commit()
+        session.pop("temp_user", None)
+        session["user"] = temp_user
+        session["verified"] = True
+        flash("Token verified. Access granted.", "success")
+        return redirect(url_for("dashboard_redirect"))
+    return render_template("verify_token.html")
+
+@app.route("/dashboard")
+@login_required
+def dashboard_redirect():
+    return redirect("http://127.0.0.1:5000/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out.", "info")
+    return redirect(url_for("login"))
+
+if __name__ == "__main__":
+    os.makedirs(BASE_DIR, exist_ok=True)
+    init_db()
+    app.run(host="127.0.0.1", port=int(os.environ.get("AUTH_PORT", "5001")), debug=False)

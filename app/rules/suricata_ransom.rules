@@ -1,0 +1,26 @@
+# suricata_ransom.rules
+# Honeypot Suricata rules for ransomware/network exfiltration
+
+# Large POST request (possible data exfiltration)
+alert http any any -> any any (msg:"Possible large HTTP POST (exfil)"; flow:established,to_server; http.request.method; content:"POST"; http.header; pcre:"/Content-Length:\s([5-9][0-9]{6,})/i"; sid:1000001; rev:2;)
+
+# Known ransomware C2 domain (example placeholder)
+alert dns any any -> any any (msg:"DNS lookup to suspicious ransomware C2"; dns.query; content:"suspicious-c2.example.com"; sid:1000002; rev:2;)
+
+# Detect HTTP requests for encrypted files
+alert http any any -> any any (msg:"Suspicious request for encrypted file (.locked/.enc/.crypt)"; uricontent:".locked"; nocase; sid:1000003; rev:1;)
+alert http any any -> any any (msg:"Suspicious request for encrypted file (.locked/.enc/.crypt)"; uricontent:".enc"; nocase; sid:1000004; rev:1;)
+alert http any any -> any any (msg:"Suspicious request for encrypted file (.locked/.enc/.crypt)"; uricontent:".crypt"; nocase; sid:1000005; rev:1;)
+
+# SMB traffic spike (possible ransomware spreading via SMB)
+alert tcp any any -> any 445 (msg:"Possible ransomware SMB lateral movement"; flow:established; threshold: type both, track by_src, count 20, seconds 60; sid:1000006; rev:1;)
+
+# DNS queries with long random subdomains (DGA detection)
+alert dns any any -> any any (msg:"Suspicious DNS query (possible DGA)"; dns.query; pcre:"/^[a-z0-9]{20,}\./"; sid:1000007; rev:1;)
+
+# Tor traffic detection (common for ransomware C2 comms)
+alert tcp any any -> any 9001 (msg:"Potential Tor traffic (port 9001)"; sid:1000008; rev:1;)
+alert tcp any any -> any 9050 (msg:"Potential Tor SOCKS proxy traffic (port 9050)"; sid:1000009; rev:1;)
+
+alert tcp any any -> any any (msg:"Suspicious SMB traffic - possible ransomware"; flow:to_server,established; content:"IPC$"; nocase; classtype:trojan-activity; sid:1000010; rev:1;)
+alert http any any -> any any (msg:"Suspicious Ransomware Note Download"; content:"decrypt"; nocase; http_uri; classtype:trojan-activity; sid:1000011; rev:1;)

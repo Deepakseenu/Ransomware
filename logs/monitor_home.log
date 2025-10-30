@@ -1,0 +1,92 @@
+2025-10-15 09:20:06,182 [INFO] === monitor.py starting ===
+2025-10-15 09:20:06,186 [INFO] [+] Connected to dashboard at http://127.0.0.1:5000
+2025-10-15 09:20:06,186 [INFO] No ML model loaded (joblib missing or model file absent).
+2025-10-15 09:20:06,187 [WARNING] Running as root. It's safer to run as an unprivileged user.
+2025-10-15 09:20:06,187 [INFO] Monitor main loop starting.
+2025-10-15 09:20:06,187 [INFO] [+] Monitoring folder: /home/yashu/Desktop
+2025-10-15 09:20:06,187 [INFO] [+] Monitoring folder: /home/yashu/Downloads
+2025-10-15 09:20:06,187 [INFO] [+] Monitoring folder: /home/yashu/Documents
+2025-10-15 09:20:06,187 [INFO] [+] Monitoring folder: /home/yashu/Music
+2025-10-15 09:20:06,188 [INFO] [+] Monitoring folder: /home/yashu/Pictures
+2025-10-15 09:20:06,188 [INFO] [+] Monitoring folder: /home/yashu/Public
+2025-10-15 09:20:38,510 [INFO] [>] Emitted event: FILE safe_ransom_simulator.py
+2025-10-15 09:21:53,609 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:21:53,611 [INFO] Backed up: /home/yashu/Downloads/safe_ransom_simulator.py -> /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:21:53,611 [INFO] [>] Emitted event: BACKUP 20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:21:53,612 [INFO] ML prediction for /home/yashu/Downloads/safe_ransom_simulator.py -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:21:53,612 [WARNING] Suspicious activity: /home/yashu/Downloads/safe_ransom_simulator.py (ml:0.0)
+2025-10-15 09:21:53,613 [INFO] [>] Emitted event: ALERT safe_ransom_simulator.py
+2025-10-15 09:23:03,564 [INFO] [>] Emitted event: FILE 20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:23:03,566 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/monitor_home.log -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035303_monitor_home.log
+2025-10-15 09:23:03,566 [INFO] [>] Emitted event: BACKUP 20251015-035303_monitor_home.log
+2025-10-15 09:23:03,566 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/monitor_home.log -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:24:18,649 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:24:18,650 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-035153_safe_ransom_simulator.py -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/backups/Downloads/20251015-035418_20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:24:18,651 [INFO] [>] Emitted event: BACKUP 20251015-035418_20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:24:18,652 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-035153_safe_ransom_simulator.py -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:24:18,652 [WARNING] Suspicious activity: /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-035153_safe_ransom_simulator.py (ml:0.0)
+2025-10-15 09:24:18,652 [INFO] [>] Emitted event: ALERT 20251015-035153_safe_ransom_simulator.py
+2025-10-15 09:25:28,625 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:25:28,626 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/monitor_home.log -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035528_monitor_home.log
+2025-10-15 09:25:28,627 [INFO] [>] Emitted event: BACKUP 20251015-035528_monitor_home.log
+2025-10-15 09:25:28,627 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/monitor_home.log -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:26:38,593 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:26:38,594 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/monitor_home.log -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035638_monitor_home.log
+2025-10-15 09:26:38,594 [INFO] [>] Emitted event: BACKUP 20251015-035638_monitor_home.log
+2025-10-15 09:26:38,595 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/monitor_home.log -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:27:53,680 [INFO] [>] Emitted event: FILE 20251015-035303_monitor_home.log
+2025-10-15 09:27:53,682 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/monitor_home.log -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035753_monitor_home.log
+2025-10-15 09:27:53,682 [INFO] [>] Emitted event: BACKUP 20251015-035753_monitor_home.log
+2025-10-15 09:27:53,682 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/monitor_home.log -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:28:15,109 [INFO] Stopping monitor (KeyboardInterrupt)...
+2025-10-15 09:28:15,113 [INFO] Backed up: /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035303_monitor_home.log -> /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035815_20251015-035303_monitor_home.log
+2025-10-15 09:28:15,114 [INFO] [>] Emitted event: BACKUP 20251015-035815_20251015-035303_monitor_home.log
+2025-10-15 09:28:15,114 [INFO] ML prediction for /home/yashu/Documents/RansomwareProject/backups/Documents/RansomwareProject/20251015-035303_monitor_home.log -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:31:23,544 [INFO] === monitor.py starting ===
+2025-10-15 09:31:23,551 [INFO] [+] Connected to dashboard at http://127.0.0.1:5000
+2025-10-15 09:31:23,552 [INFO] No ML model loaded (joblib missing or model file absent).
+2025-10-15 09:31:23,557 [WARNING] Running as root. Safer to run as unprivileged user.
+2025-10-15 09:31:23,558 [INFO] Monitor main loop starting.
+2025-10-15 09:31:23,558 [INFO] [+] Monitoring folder: /home/yashu/Desktop
+2025-10-15 09:31:23,558 [INFO] [+] Monitoring folder: /home/yashu/Downloads
+2025-10-15 09:31:23,558 [INFO] [+] Monitoring folder: /home/yashu/Documents
+2025-10-15 09:31:23,559 [INFO] [+] Monitoring folder: /home/yashu/Music
+2025-10-15 09:31:23,559 [INFO] [+] Monitoring folder: /home/yashu/Pictures
+2025-10-15 09:31:23,559 [INFO] [+] Monitoring folder: /home/yashu/Public
+2025-10-15 09:36:31,227 [INFO] New file in Downloads: /home/yashu/Downloads/eicar.com. Moving to sandbox inbox.
+2025-10-15 09:36:31,227 [INFO] [>] Emitted event: MOVED_TO_SANDBOX eicar.com
+2025-10-15 09:36:31,228 [INFO] Moved /home/yashu/Downloads/eicar.com -> /home/yashu/Documents/sandbox_inbox/eicar.com
+2025-10-15 09:36:31,229 [INFO] [>] Emitted event: ANALYSIS eicar.com
+2025-10-15 09:36:31,230 [INFO] Analysis result for /home/yashu/Documents/sandbox_inbox/eicar.com -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:36:31,230 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:36:31,231 [INFO] Detected file in sandbox/quarantine: /home/yashu/Documents/sandbox_inbox/eicar.com
+2025-10-15 09:36:31,232 [INFO] [>] Emitted event: FILE eicar.com
+2025-10-15 09:36:31,232 [INFO] [>] Emitted event: ANALYSIS eicar.com
+2025-10-15 09:36:31,233 [INFO] Analysis result for /home/yashu/Documents/sandbox_inbox/eicar.com -> {'label': 'unknown', 'score': 0.0}
+2025-10-15 09:37:25,366 [INFO] New file in Downloads: /home/yashu/Downloads/test_document.txt.locked. Moving to sandbox inbox.
+2025-10-15 09:37:25,367 [INFO] [>] Emitted event: MOVED_TO_SANDBOX test_document.txt.locked
+2025-10-15 09:37:25,367 [INFO] Moved /home/yashu/Downloads/test_document.txt.locked -> /home/yashu/Documents/sandbox_inbox/test_document.txt.locked
+2025-10-15 09:37:25,368 [INFO] [>] Emitted event: ANALYSIS test_document.txt.locked
+2025-10-15 09:37:25,368 [INFO] Analysis result for /home/yashu/Documents/sandbox_inbox/test_document.txt.locked -> {'label': 'malicious', 'score': 0.99}
+2025-10-15 09:37:25,369 [INFO] [>] Emitted event: FILE monitor_home.log
+2025-10-15 09:37:25,371 [INFO] Detected file in sandbox/quarantine: /home/yashu/Documents/sandbox_inbox/test_document.txt.locked
+2025-10-15 09:37:25,372 [INFO] [>] Emitted event: FILE test_document.txt.locked
+2025-10-15 09:37:25,373 [INFO] [>] Emitted event: ANALYSIS test_document.txt.locked
+2025-10-15 09:37:25,373 [INFO] Analysis result for /home/yashu/Documents/sandbox_inbox/test_document.txt.locked -> {'label': 'malicious', 'score': 0.99}
+2025-10-15 09:37:25,379 [INFO] [>] Emitted event: FILE HONEYPOT_run_detection_test.sh
+2025-10-15 09:37:25,384 [INFO] [>] Emitted event: FILE run_detection_test.sh
+2025-10-15 09:37:25,385 [INFO] [>] Emitted event: BACKUP Downloads_backup_20251015-093725
+2025-10-15 09:37:25,386 [INFO] Backed up 6 files from Downloads to /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-093725
+2025-10-15 09:37:25,386 [INFO] [>] Emitted event: QUARANTINE test_document.txt.locked
+2025-10-15 09:37:25,386 [INFO] Quarantined /home/yashu/Documents/sandbox_inbox/test_document.txt.locked -> /home/yashu/Documents/sandbox_quarantine/test_document.txt.locked
+2025-10-15 09:37:25,386 [INFO] [>] Emitted event: ALERT test_document.txt.locked
+2025-10-15 09:37:25,389 [INFO] [>] Emitted event: BACKUP Downloads_backup_20251015-093725
+2025-10-15 09:37:25,389 [INFO] [>] Emitted event: FILE pav1.jpeg
+2025-10-15 09:37:25,389 [INFO] Backed up 6 files from Downloads to /home/yashu/Documents/RansomwareProject/backups/Downloads/20251015-093725
+2025-10-15 09:37:25,391 [ERROR] Quarantine failed for /home/yashu/Documents/sandbox_inbox/test_document.txt.locked : [Errno 2] No such file or directory: '/home/yashu/Documents/sandbox_inbox/test_document.txt.locked'
+2025-10-15 09:37:25,391 [INFO] [>] Emitted event: ALERT test_document.txt.locked
+2025-10-15 09:37:25,393 [INFO] [>] Emitted event: FILE pav.jpeg
+2025-10-15 09:37:25,395 [INFO] [>] Emitted event: FILE safe_ransom_simulator.py
+2025-10-15 09:37:25,397 [INFO] [>] Emitted event: FILE pav2.jpeg
+2025-10-15 09:38:51,515 [INFO] Stopping monitor (KeyboardInterrupt)...
+2025-10-15 09:38:51,517 [INFO] [>] Emitted event: FILE monitor_home.log

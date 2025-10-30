@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify OTP - Auth System</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #161b22;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 350px;
+      text-align: center;
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 1rem;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #238636;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2ea043;
+    }
+    .msg {
+      background: #30363d;
+      color: #f0f6fc;
+      padding: 8px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Verify OTP</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="msg">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="post">
+      <input type="text" name="otp" placeholder="Enter OTP from email" required autofocus>
+      <button type="submit">Verify</button>
+    </form>
+    <p><a href="/login">Back to login</a></p>
+  </div>
+</body>
+</html>
